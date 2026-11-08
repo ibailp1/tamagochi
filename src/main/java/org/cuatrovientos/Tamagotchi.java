@@ -1,11 +1,14 @@
 package org.cuatrovientos;
 
+import java.util.Random;
+
 public class Tamagotchi extends Thread {
 
     private String nombre;
     private long tiempoComer;
     private boolean vivo = true;
-    private boolean ocupado, quiereComer;
+    private boolean ocupado, quiereComer, quiereJugar, esperandoRespuesta, respuestaRecibida;
+    private int num1, num2, respuesta;
 
     public Tamagotchi(String nombre, long tiempoComer) {
 
@@ -27,6 +30,22 @@ public class Tamagotchi extends Thread {
 
     public synchronized boolean isOcupado() {
         return ocupado;
+    }
+
+    public synchronized int getNum1() {
+        return num1;
+    }
+
+    public synchronized int getNum2() {
+        return num2;
+    }
+
+    public synchronized boolean isEsperandoRespuesta() {
+        return esperandoRespuesta;
+    }
+
+    public synchronized boolean isRespuestaRecibida() {
+        return respuestaRecibida;
     }
 
     @Override
@@ -74,6 +93,41 @@ public class Tamagotchi extends Thread {
                 }
             }
 
+            boolean empezarJugar = false;
+
+            synchronized (this) {
+                if (quiereJugar) {
+                    quiereJugar = false;
+
+                    Random random = new Random();
+
+                    num1 = random.nextInt(10);
+                    num2 = random.nextInt(10 - num1);
+
+                    esperandoRespuesta = true;
+                    empezarJugar = true;
+                }
+            }
+
+            if (empezarJugar) {
+                System.out.println(nombre + ": Cuanto es " + num1 + " + " + num2 + "?");
+            }
+
+            if (esperandoRespuesta && respuestaRecibida) {
+
+                synchronized (this) {
+                    respuestaRecibida = false;
+
+                    if (num1 + num2 == respuesta) {
+                        System.out.println(nombre + ": Correcto!");
+                        esperandoRespuesta = false;
+                        ocupado = false;
+                    } else {
+                        System.out.println(nombre + ": Incorrecto,seguimos jugando!");
+                    }
+                }
+            }
+
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -87,10 +141,6 @@ public class Tamagotchi extends Thread {
     }
 
     public synchronized void morir() {
-        if (!vivo) {
-            return;
-        }
-
         if (ocupado) {
             System.out.println(nombre + " no puede morir, está ocupado");
             return;
@@ -107,12 +157,6 @@ public class Tamagotchi extends Thread {
     }
 
     public synchronized void comer() {
-
-        if (!vivo) {
-            System.out.println(nombre + " no puede comer, está muerto");
-            return;
-        }
-
         if (ocupado) {
             System.out.println(nombre + " no puede comer, está ocupado");
             return;
@@ -121,4 +165,23 @@ public class Tamagotchi extends Thread {
         quiereComer = true;
     }
 
+    public synchronized void jugar() {
+        if (ocupado) {
+            System.out.println(nombre + " no puede jugar, está ocupado");
+            return;
+        }
+
+        ocupado = true;
+        quiereJugar = true;
+    }
+
+    public synchronized void responder(int respuesta) {
+        if (!esperandoRespuesta) {
+            System.out.println(nombre + " todavía no ha preguntado nada");
+            return;
+        }
+
+        this.respuesta = respuesta;
+        respuestaRecibida = true;
+    }
 }

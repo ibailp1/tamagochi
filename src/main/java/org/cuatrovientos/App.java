@@ -53,6 +53,7 @@ public class App {
                     cuidador.esperarAcciones();
                     break;
                 case 2:
+                    cuidador.jugarConTamagotchis(scanner);
                     break;
                 case 3:
                     break;

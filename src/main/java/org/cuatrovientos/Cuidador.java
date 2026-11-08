@@ -2,6 +2,7 @@ package org.cuatrovientos;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Cuidador {
 
@@ -81,5 +82,42 @@ public class Cuidador {
 
     public int contarTamagotchis() {
         return tamagotchis.size();
+    }
+
+    public void jugarConTamagotchis(Scanner scanner) {
+
+        for (Tamagotchi tamagotchi : tamagotchis) {
+
+            tamagotchi.jugar();
+
+            while (tamagotchi.isOcupado() && tamagotchi.isVivo()) {
+
+                if (tamagotchi.isEsperandoRespuesta()) {
+
+                    String txt;
+                    int respuesta = 0;
+                    boolean esInt;
+                    do {
+                        System.out.print("Respuesta: ");
+                        txt = scanner.nextLine();
+
+                        try {
+                            respuesta = Integer.parseInt(txt);
+                            esInt = true;
+                        } catch (NumberFormatException e) {
+                            System.out.println("¡Error, debes introducir un número válido!");
+                            esInt = false;
+                        }
+
+                    } while (!esInt);
+
+                    tamagotchi.responder(respuesta);
+
+                    while (tamagotchi.isRespuestaRecibida()) {
+                    }
+                }
+
+            }
+        }
     }
 }
