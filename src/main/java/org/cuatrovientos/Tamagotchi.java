@@ -16,16 +16,12 @@ public class Tamagotchi extends Thread {
         return nombre;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public long getTiempoComer() {
         return tiempoComer;
     }
 
-    public void setTiempoComer(long tiempoComer) {
-        this.tiempoComer = tiempoComer;
+    public boolean isVivo() {
+        return vivo;
     }
 
     @Override
@@ -58,4 +54,5 @@ public class Tamagotchi extends Thread {
         vivo = false;
         System.out.println(getNombre() + " ha muerto!");
     }
+
 }
