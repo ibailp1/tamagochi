@@ -17,13 +17,7 @@ public class App {
 
         boolean salir = false;
         while (!salir) {
-            int cantidadTamagotchis = cuidador.contarTamagotchis();
-            if (cantidadTamagotchis == 0) {
-                cantidadCreacionTamagotchis = random.nextInt(1, 4);
 
-                cuidador.crearTamagotchis(cantidadCreacionTamagotchis);
-                System.out.println("Se han creado " + cantidadCreacionTamagotchis + " tamagotchis!");
-            }
             System.out.println("\nMENÚ TAMAGOTCHIS");
             System.out.println("1. Alimentarlos");
             System.out.println("2. Jugar con ellos");
@@ -50,20 +44,21 @@ public class App {
             switch (opcion) {
                 case 1:
                     cuidador.darDeComerTamagatochis();
-                    cuidador.esperarAcciones();
                     break;
                 case 2:
                     cuidador.jugarConTamagotchis(scanner);
                     break;
                 case 3:
+                    cuidador.limpiarTamagotchis();
                     break;
                 case 4:
+                    cuidador.mostrarEstados();
                     break;
                 case 5:
                     cuidador.matarTamagotchis();
                     break;
                 case 6:
-                    cuidador.forzarMuerteTamagotchis();
+                    cuidador.eliminarTodos();
                     salir = true;
                     break;
             }

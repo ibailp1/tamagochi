@@ -30,58 +30,17 @@ public class Cuidador {
     }
 
     public void darDeComerTamagatochis() {
-
+        
         for (Tamagotchi tamagotchi : tamagotchis) {
             tamagotchi.comer();
         }
     }
 
-    public void esperarAcciones() {
-
-        boolean hayOcupados;
-
-        do {
-            hayOcupados = false;
-
-            for (Tamagotchi tamagotchi : tamagotchis) {
-                if (tamagotchi.isOcupado()) {
-                    hayOcupados = true;
-                    break;
-                }
-            }
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-        } while (hayOcupados);
-    }
-
-    public void matarTamagotchis() {
-        for (int i = 0; i < tamagotchis.size(); i++) {
-            Tamagotchi tamagotchi = tamagotchis.get(i);
-
-            tamagotchi.morir();
-
-            if (!tamagotchi.isVivo()) {
-                tamagotchis.remove(i);
-                i--;
-            }
-        }
-    }
-
-    public void forzarMuerteTamagotchis() {
+    public void limpiarTamagotchis() {
         for (Tamagotchi tamagotchi : tamagotchis) {
-            tamagotchi.morirForzado();
+            tamagotchi.limpiar();
         }
 
-        tamagotchis.clear();
-    }
-
-    public int contarTamagotchis() {
-        return tamagotchis.size();
     }
 
     public void jugarConTamagotchis(Scanner scanner) {
@@ -119,5 +78,41 @@ public class Cuidador {
 
             }
         }
+    }
+
+    
+
+    public void mostrarEstados() {
+
+        System.out.println("\n### ESTADO DE LOS TAMAGOTCHIS ###");
+        for (Tamagotchi tamagotchi : tamagotchis) {
+
+            System.out.println("\n" + tamagotchi.getNombre());
+            System.out.println();
+            System.out.println("Estado: " + tamagotchi.getEstado());
+            System.out.println("Vivo: " + tamagotchi.isVivo());
+            System.out.println("Suciedad: " + tamagotchi.getSuciedad() + "/10");
+            System.out.println("Tiempo de vida: " + tamagotchi.getTiempoVida() + " segundos");
+            System.out.println("TIempo que tarda en comer: " + tamagotchi.getTiempoComer() + " ms");
+            if (tamagotchi.getMensajes().size() != 0) {
+                for (String mensaje : tamagotchi.getMensajes()) {
+                    System.out.println(mensaje);
+                }
+            }
+        }
+    }
+
+    
+    public void matarTamagotchis() {
+        for (Tamagotchi tamagotchi : tamagotchis) {
+            tamagotchi.morir();
+        }
+    }
+
+    public void eliminarTodos() {
+        for (Tamagotchi tamagotchi : tamagotchis) {
+            tamagotchi.forzarSalida();
+        }
+        tamagotchis.clear();
     }
 }

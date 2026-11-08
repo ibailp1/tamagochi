@@ -1,14 +1,19 @@
 package org.cuatrovientos;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class Tamagotchi extends Thread {
 
     private String nombre;
-    private long tiempoComer;
+    private long tiempoComer, ultimaSubidaSuciedad, inicioVida, finVida;
     private boolean vivo = true;
-    private boolean ocupado, quiereComer, quiereJugar, esperandoRespuesta, respuestaRecibida;
+    private boolean ocupado, quiereComer, quiereJugar, esperandoRespuesta, respuestaRecibida, quiereLimpiarse;
     private int num1, num2, respuesta;
+    private int suciedad = 0;
+    private String estado = "Ocioso";
+    private List<String> mensajes = new ArrayList<>();
 
     public Tamagotchi(String nombre, long tiempoComer) {
 
@@ -48,20 +53,60 @@ public class Tamagotchi extends Thread {
         return respuestaRecibida;
     }
 
+    public synchronized String getEstado() {
+        return estado;
+    }
+
+    public synchronized int getSuciedad() {
+        return suciedad;
+    }
+
+    public synchronized long getTiempoVida() {
+        if (vivo) {
+            return (System.currentTimeMillis() - inicioVida) / 1000;
+        } else {
+            return (finVida - inicioVida) / 1000;
+        }
+    }
+
+    public synchronized List<String> getMensajes() {
+        return new ArrayList<>(mensajes);
+    }
+
     @Override
     public void run() {
 
-        long inicioVida = System.currentTimeMillis();
+        inicioVida = System.currentTimeMillis();
+        ultimaSubidaSuciedad = inicioVida;
 
         while (vivo) {
 
             long tiempoAhora = System.currentTimeMillis();
 
-            long tiempoPasado = tiempoAhora - inicioVida;
-
-            if (tiempoPasado >= 1000 * 60 * 5) {
+            if ((tiempoAhora - inicioVida) >= 1000 * 60 * 5) {
                 morir();
                 break;
+            }
+
+            long tiempoSucio = System.currentTimeMillis() - ultimaSubidaSuciedad;
+
+            if (tiempoSucio >= 20000) {
+                synchronized (this) {
+                    suciedad++;
+                    ultimaSubidaSuciedad = System.currentTimeMillis();
+
+                    if (suciedad == 5) {
+                        mensajes.add("Está empezando a estar muy sucio!");
+                    } else if (suciedad < 5) {
+                        mensajes.remove("Está empezando a estar muy sucio!");
+                    }
+
+                    if (suciedad == 10) {
+                        mensajes.add("Ha muerto por suciedad!");
+                        vivo = false;
+                        break;
+                    }
+                }
             }
 
             boolean empezarComer = false;
@@ -75,7 +120,9 @@ public class Tamagotchi extends Thread {
 
             if (empezarComer) {
 
-                System.out.println(nombre + " ha empezado a comer!");
+                synchronized (this) {
+                    estado = "Comiendo";
+                }
 
                 try {
                     Thread.sleep(tiempoComer);
@@ -86,10 +133,47 @@ public class Tamagotchi extends Thread {
                     e.printStackTrace();
                 }
 
-                System.out.println(nombre + " ha terminado de comer!");
-
                 synchronized (this) {
                     ocupado = false;
+                    estado = "Ocioso";
+                }
+            }
+
+            boolean empezarLimpiarse = false;
+
+            synchronized (this) {
+                if (quiereLimpiarse) {
+                    quiereLimpiarse = false;
+                    empezarLimpiarse = true;
+                }
+            }
+
+            if (empezarLimpiarse) {
+                synchronized (this) {
+                    estado = "Bañándose";
+                }
+
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    if (!vivo) {
+                        break;
+                    }
+                    e.printStackTrace();
+                }
+
+                if (vivo) {
+
+                    synchronized (this) {
+                        if (suciedad >= 5) {
+                            suciedad = suciedad - 5;
+                        } else {
+                            suciedad = 0;
+                        }
+                        ultimaSubidaSuciedad = System.currentTimeMillis();
+                        ocupado = false;
+                        estado = "Ocioso";
+                    }
                 }
             }
 
@@ -122,6 +206,7 @@ public class Tamagotchi extends Thread {
                         System.out.println(nombre + ": Correcto!");
                         esperandoRespuesta = false;
                         ocupado = false;
+                        estado = "Ocupado";
                     } else {
                         System.out.println(nombre + ": Incorrecto,seguimos jugando!");
                     }
@@ -140,39 +225,47 @@ public class Tamagotchi extends Thread {
         }
     }
 
-    public synchronized void morir() {
-        if (ocupado) {
-            System.out.println(nombre + " no puede morir, está ocupado");
-            return;
-        }
-
-        vivo = false;
-        interrupt();
-        System.out.println(nombre + " ha muerto!");
-    }
-
-    public void morirForzado() {
-        vivo = false;
-        interrupt();
-    }
-
     public synchronized void comer() {
-        if (ocupado) {
-            System.out.println(nombre + " no puede comer, está ocupado");
-            return;
+        if (comprobar()) {
+            ocupado = true;
+            quiereComer = true;
         }
-        ocupado = true;
-        quiereComer = true;
+    }
+
+    public synchronized void limpiar() {
+        if (comprobar()) {
+            ocupado = true;
+            quiereLimpiarse = true;
+        }
     }
 
     public synchronized void jugar() {
-        if (ocupado) {
-            System.out.println(nombre + " no puede jugar, está ocupado");
-            return;
+        if (comprobar()) {
+            ocupado = true;
+            quiereJugar = true;
         }
+    }
 
-        ocupado = true;
-        quiereJugar = true;
+    public synchronized void morir() {
+        if (comprobar()) {
+            vivo = false;
+            estado = "Muerto";
+            finVida = System.currentTimeMillis();
+        }
+    }
+
+    public boolean comprobar() {
+        if (!vivo) {
+            return false;
+        }
+        if (ocupado) {
+            return false;
+        }
+        return true;
+    }
+
+    public void forzarSalida() {
+        interrupt();
     }
 
     public synchronized void responder(int respuesta) {
@@ -184,4 +277,5 @@ public class Tamagotchi extends Thread {
         this.respuesta = respuesta;
         respuestaRecibida = true;
     }
+
 }
