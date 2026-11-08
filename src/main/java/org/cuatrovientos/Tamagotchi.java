@@ -265,6 +265,7 @@ public class Tamagotchi extends Thread {
     }
 
     public void forzarSalida() {
+        vivo = false;
         interrupt();
     }
 
