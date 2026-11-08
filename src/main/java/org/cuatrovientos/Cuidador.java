@@ -59,8 +59,27 @@ public class Cuidador {
     }
 
     public void matarTamagotchis() {
-        for (Tamagotchi tamagotchi : tamagotchis) {
+        for (int i = 0; i < tamagotchis.size(); i++) {
+            Tamagotchi tamagotchi = tamagotchis.get(i);
+
             tamagotchi.morir();
+
+            if (!tamagotchi.isVivo()) {
+                tamagotchis.remove(i);
+                i--;
+            }
         }
+    }
+
+    public void forzarMuerteTamagotchis() {
+        for (Tamagotchi tamagotchi : tamagotchis) {
+            tamagotchi.morirForzado();
+        }
+
+        tamagotchis.clear();
+    }
+
+    public int contarTamagotchis() {
+        return tamagotchis.size();
     }
 }

@@ -10,13 +10,20 @@ public class App {
 
         Random random = new Random();
 
-        int cantidadTamagotchis = random.nextInt(1, 4);
+        int cantidadCreacionTamagotchis = random.nextInt(1, 4);
 
-        cuidador.crearTamagotchis(cantidadTamagotchis);
-        System.out.println("Se han creado " + cantidadTamagotchis + " tamagotchis!");
+        cuidador.crearTamagotchis(cantidadCreacionTamagotchis);
+        System.out.println("Se han creado " + cantidadCreacionTamagotchis + " tamagotchis!");
 
         boolean salir = false;
         while (!salir) {
+            int cantidadTamagotchis = cuidador.contarTamagotchis();
+            if (cantidadTamagotchis == 0) {
+                cantidadCreacionTamagotchis = random.nextInt(1, 4);
+
+                cuidador.crearTamagotchis(cantidadCreacionTamagotchis);
+                System.out.println("Se han creado " + cantidadCreacionTamagotchis + " tamagotchis!");
+            }
             System.out.println("\nMENÚ TAMAGOTCHIS");
             System.out.println("1. Alimentarlos");
             System.out.println("2. Jugar con ellos");
@@ -28,7 +35,6 @@ public class App {
             String txt;
             int opcion = 0;
             boolean esInt;
-
             do {
                 System.out.print("\nElige una opción: ");
                 txt = scanner.nextLine();
@@ -53,13 +59,15 @@ public class App {
                 case 4:
                     break;
                 case 5:
+                    cuidador.matarTamagotchis();
                     break;
                 case 6:
-                    cuidador.matarTamagotchis();
+                    cuidador.forzarMuerteTamagotchis();
                     salir = true;
                     break;
             }
         }
+        System.out.println("Has finalizado el programa...");
         if (scanner != null) {
             scanner.close();
         }

@@ -35,6 +35,7 @@ public class Tamagotchi extends Thread {
         long inicioVida = System.currentTimeMillis();
 
         while (vivo) {
+
             long tiempoAhora = System.currentTimeMillis();
 
             long tiempoPasado = tiempoAhora - inicioVida;
@@ -85,10 +86,24 @@ public class Tamagotchi extends Thread {
         }
     }
 
-    public void morir() {
+    public synchronized void morir() {
+        if (!vivo) {
+            return;
+        }
+
+        if (ocupado) {
+            System.out.println(nombre + " no puede morir, está ocupado");
+            return;
+        }
+
         vivo = false;
         interrupt();
         System.out.println(nombre + " ha muerto!");
+    }
+
+    public void morirForzado() {
+        vivo = false;
+        interrupt();
     }
 
     public synchronized void comer() {
