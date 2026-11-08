@@ -4,6 +4,7 @@ public class Tamagotchi extends Thread {
 
     private String nombre;
     private long tiempoComer;
+    private boolean vivo = true;
 
     public Tamagotchi(String nombre, long tiempoComer) {
 
@@ -29,6 +30,32 @@ public class Tamagotchi extends Thread {
 
     @Override
     public void run() {
+
+        long inicioVida = System.currentTimeMillis();
+
         System.out.println(getNombre() + " ha nacido!");
+
+        while (vivo) {
+            long tiempoAhora = System.currentTimeMillis();
+
+            long tiempoPasado = tiempoAhora - inicioVida;
+
+            if (tiempoPasado >= 1000 * 60 * 5) {
+                morir();
+                break;
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public void morir() {
+        vivo = false;
+        System.out.println(getNombre() + " ha muerto!");
     }
 }
