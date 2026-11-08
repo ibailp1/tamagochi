@@ -43,6 +43,8 @@ public class App {
 
             switch (opcion) {
                 case 1:
+                    cuidador.darDeComerTamagatochis();
+                    cuidador.esperarAcciones();
                     break;
                 case 2:
                     break;
@@ -53,13 +55,13 @@ public class App {
                 case 5:
                     break;
                 case 6:
+                    cuidador.matarTamagotchis();
                     salir = true;
                     break;
             }
-
-            if (scanner != null) {
-                scanner.close();
-            }
+        }
+        if (scanner != null) {
+            scanner.close();
         }
     }
 }
